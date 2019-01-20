@@ -13,6 +13,7 @@ function process_automation () {
     http.onreadystatechange = function() {//Call a function when the state changes.
         if(http.readyState == 4 && http.status == 200) {
             //success response
+            document.getElementsByName('XMLRequest')[0].value = http.responseText;
             submit_to_client(http.responseText);
         }
     }
