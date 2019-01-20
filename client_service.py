@@ -48,7 +48,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 <!DOCTYPE html>
 <html>
   <head><meta charset="utf-8" /></head>
-  <body> <!--onload="document.forms[0].submit()"-->
+  <body onload="document.forms[0].submit()">
     <p>you must press the Continue button once to proceed.</p>
     <form action="http://localhost:8088/" method="post">
       <input type="hidden" name=" "/>
