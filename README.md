@@ -1,10 +1,12 @@
-= Request/Response Exchange via POST/POST exchanges
+# Request/Response Exchange via POST/POST exchanges
 
-Purpose: request an XML-infoset to be signed by another service.
+## Purpose
+
+Request an XML-infoset to be signed by another service.
 The connection to the other service is via front-channel, 
 that is via the browser.
 
-Flow: 
+## Flow: 
 
 1. Client requests data entry form (GET /) 
 2. Client Service respondes with an HTML form that contains a POST to the signature service.
