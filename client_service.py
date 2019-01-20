@@ -21,6 +21,12 @@ class RequestHandler(BaseHTTPRequestHandler):
         with open('testdata/unsigned_data.xml') as fd:
             self.xml_to_be_signed = fd.read()
         super().__init__(*args, **kwargs)
+    
+    def _set_response(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
 
     def do_GET(self):
         logging.info(f"GET request,\nPath: {str(self.path)}\nHeaders:\n{str(self.headers)}")
@@ -41,6 +47,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             loggin.error("Signed data not matching expected result")
 
         self._set_response()
+        # self.send_response(200)
         self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
 
     def _get_seclay_post_request_form(self):
