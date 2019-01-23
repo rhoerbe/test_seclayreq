@@ -22,10 +22,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.xml_to_be_signed = fd.read()
         self.sig_response = ''
         super().__init__(*args, **kwargs)
-    
+
     def _set_response(self):
         self.send_response(200)
-        #self.send_header("Access-Control-Allow-Origin", "http://localhost")
         self.end_headers()
 
     def do_GET(self):
@@ -74,10 +73,7 @@ class RequestHandler(BaseHTTPRequestHandler):
       <input type="hidden" name="signed_data"/>
       <input type="submit" value="Continue"/>
     </form>
-    <script src="automate.js">
-
-
-    </script>
+    <script src="automate.js"></script>
   </body>
 </html>
             '''

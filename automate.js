@@ -1,16 +1,17 @@
-window.onload = process_automation;
+window.onload = get_signature;
 
-function process_automation () {
-    var http = new XMLHttpRequest();
-    var url = 'http://localhost:8088/http-security-layer-request';
-    var params = 'XMLRequest=' + document.getElementsByName('XMLRequest')[0].value;
-    http.ontimeout  = function (event) {
-        submit_to_client('<error code=3 msg="connection timeout to signature service on 127.0.0.1:8088"/>');
+function get_signature () {
+    function send_sig_request() {
+        http.open('POST', url, true);
+        http.timeout = 5000
+        http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        http.send(params);
+        http.ontimeout  = function (event) {
+            submit_to_client('<error code=3 msg="connection timeout to signature service on 127.0.0.1:8088"/>');
+        }
     }
-    http.open('POST', url, true);
-    http.timeout = 5000
-    http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    http.onreadystatechange = function() {  //signature response
+
+    function handle_sig_response() {
         if(http.readyState == 4) {
             switch (http.status) {
                 case 200:
@@ -29,7 +30,12 @@ function process_automation () {
             }
         }
     }
-    http.send(params);
+
+    var http = new XMLHttpRequest();
+    http.onreadystatechange = handle_sig_response
+    var url = 'http://localhost:8088';
+    var params = 'XMLRequest=' + document.getElementsByName('XMLRequest')[0].value;
+    send_sig_request()
 }
 
 function submit_to_client(params) {
