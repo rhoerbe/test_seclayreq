@@ -3,12 +3,12 @@ window.onload = get_signature;
 function get_signature () {
     function send_sig_request() {
         http.open('POST', url, true);
-        http.timeout = 5000
+        //http.timeout = 5000;
         http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         http.send(params);
-        http.ontimeout  = function (event) {
-            submit_to_client('<error code=3 msg="connection timeout to signature service on 127.0.0.1:8088"/>');
-        }
+        //http.ontimeout  = function (event) {
+        //    submit_to_client('<error code=3 msg="connection timeout to signature service on 127.0.0.1:8088"/>');
+        //}
     }
 
     function handle_sig_response() {
@@ -32,23 +32,28 @@ function get_signature () {
     }
 
     var http = new XMLHttpRequest();
-    http.onreadystatechange = handle_sig_response
-    var url = 'http://localhost:8088';
+    http.onreadystatechange = handle_sig_response;
+    var url = 'http://localhost:8088/http-security-layer-request';
     var params = 'XMLRequest=' + document.getElementsByName('XMLRequest')[0].value;
-    send_sig_request()
+    send_sig_request();
 }
 
 function submit_to_client(params) {
+    function handle_client_response() {
+        if (http.readyState == 4) {
+            if (http.status != 200) {
+                alert('Failed to answer signature creation request to ');
+            } else {
+                document.open();
+                document.write(http.responseText);
+                document.close();
+            }
+        }
+    }
     var http = new XMLHttpRequest();
     var url = 'http://localhost:8080/sigresult';
     http.open('POST', url, true);
     http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    http.onreadystatechange = function() {
-        if (http.readyState == 4) {
-            if (http.status != 200) {
-                alert('Failed to answer signature creation request to ');
-            }
-        }
-    }
+    http.onreadystatechange = handle_client_response;
     http.send(params);
 }

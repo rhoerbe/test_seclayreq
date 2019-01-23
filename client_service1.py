@@ -69,7 +69,7 @@ class RequestHandler(BaseHTTPRequestHandler):
   <body> <!--onload="document.forms[0].submit()"-->
     <p>Request page - this page should not be shown in the browser unless java script is disabled</p>
     <textarea rows="30" cols="100" readonly name="XMLRequest">%s</textarea>
-    <form action="http://localhost:8080/http-security-layer-request" method="post">
+    <form action="http://localhost:8080/" method="post">
       <input type="hidden" name="signed_data"/>
       <input type="submit" value="Continue"/>
     </form>
