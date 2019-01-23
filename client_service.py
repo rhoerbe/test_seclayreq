@@ -2,13 +2,12 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import logging
 import sys
 import urllib
-
+import config
 
 
 def main():
-    server_address = ('127.0.0.1', 8080)
-    print(f'starting server at {server_address[0]}:{server_address[1]}')
-    httpd = HTTPServer(server_address, RequestHandler)
+    print(f'starting server at {config.client_service_address[0]}:{config.client_service_address[1]}')
+    httpd = HTTPServer(config.client_service_address, RequestHandler)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -27,13 +26,18 @@ class RequestHandler(BaseHTTPRequestHandler):
     def _set_response(self):
         self.send_response(200)
         #self.send_header("Access-Control-Allow-Origin", "http://localhost")
-        self.send_header('Content-type', 'text/html')
         self.end_headers()
 
     def do_GET(self):
         logging.info(f"GET request,\nPath: {str(self.path)}\nHeaders:\n{str(self.headers)}")
         if self.path == '/favicon.ico':
             self.send_response(404)
+        elif self.path == '/automate.js':
+            with open('automate.js') as fd:
+                self.send_response(200)
+                self.send_header('Content-type', 'application/javascript')
+                self.end_headers()
+                self.wfile.write(fd.read().encode('utf-8'))
         else:
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
@@ -63,66 +67,16 @@ class RequestHandler(BaseHTTPRequestHandler):
 <!DOCTYPE html>
 <html>
   <head><meta charset="utf-8" /></head>
-  <body onload="document.forms[0].submit()">
+  <body> <!--onload="document.forms[0].submit()"-->
     <p>Request page - this page should not be shown in the browser unless java script is disabled</p>
     <textarea rows="30" cols="100" readonly name="XMLRequest">%s</textarea>
-    <script>
+    <form action="http://localhost:8080/http-security-layer-request" method="post">
+      <input type="hidden" name="signed_data"/>
+      <input type="submit" value="Continue"/>
+    </form>
+    <script src="automate.js">
 
-window.onload = process_automation;
 
-function process_automation () {
-    var http = new XMLHttpRequest();
-    var url = 'http://localhost:8088';
-
-    var params = 'XMLRequest=' + document.getElementsByName('XMLRequest')[0].value;
-
-    http.ontimeout  = function (event) {
-        submit_to_client('<error code=3 msg="connection timeout to signature service on 127.0.0.1:8088"/>');
-    }
-
-    http.open('POST', url, true);
-    http.timeout = 5000
-
-    http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-    http.onreadystatechange = function() {  //signature response
-        if(http.readyState == 4) {
-            switch (http.status) {
-                case 200:
-                    if (http.responseText === undefined || http.responseText === '') {
-                        submit_to_client('<error code=2 msg="There is no result to signature service on 127.0.0.1:8088"/>');
-                    } else {
-                        document.getElementsByName('XMLRequest')[0].value = http.responseText;
-                        submit_to_client(http.responseText);
-                    }
-                    break;
-                case 0: 
-                    submit_to_client('<error code=1 msg="could not connect to signature service on 127.0.0.1:8088"/>');
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    http.send(params);
-}
-
-function submit_to_client(params) {
-    var http = new XMLHttpRequest();
-    var url = 'http://localhost:8080/sigresult';
-
-    http.open('POST', url, true);
-    http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-    http.onreadystatechange = function() {
-        if (http.readyState == 4) {
-            if (http.status != 200) {
-                alert('Failed to answer signature creation request to ');
-            }
-        }
-    }
-    http.send(params);
-}
     </script>
   </body>
 </html>
